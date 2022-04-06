@@ -202,3 +202,10 @@ class PostPagesTests(TestCase):
         response = self.authorized_client.get(path)
         posts_count_after = len(response.context['page_obj'])
         self.assertEqual(posts_count_before + 1, posts_count_after)
+
+    def test_follow_self(self):
+        follower_count_before = self.user.follower.count()
+        path = reverse('posts:profile_follow', kwargs={'username':self.user.username})
+        self.authorized_client.get(path)
+        test_user = User.objects.get(username=self.user.username)
+        self.assertEqual(test_user.follower.count(), follower_count_before)

@@ -1,4 +1,5 @@
 from core.models import CreatedModel
+from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.db import models
 
@@ -75,14 +76,7 @@ class Follow(models.Model):
         related_name='following'
     )
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                name="%(app_label)s_%(class)s_unique_relationships",
-                fields=["user", "author"],
-            ),
-            models.CheckConstraint(
-                name="%(app_label)s_%(class)s_prevent_self_follow",
-                check=~models.Q(user=models.F("author")),
-            ),
-        ]
+    def save(self, *args, **kwargs):
+        if self.user == self.author:
+            raise ValidationError('Вы не можете подписаться на себя!')
+        return super(Follow, self).save(*args, **kwargs)
