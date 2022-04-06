@@ -31,11 +31,6 @@ class PostURLTests(TestCase):
         self.authorized_client = Client()
         self.authorized_client.force_login(self.not_author)
 
-    def test_unexisting_url(self):
-        response = self.client.get('/unexisting_page/')
-        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
-        self.assertTemplateUsed(response, 'core/404.html')
-
     def test_url_exist(self):
         urls = ['/',
                 f'/group/{self.group.slug}/',
