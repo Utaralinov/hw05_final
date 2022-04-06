@@ -205,7 +205,8 @@ class PostPagesTests(TestCase):
 
     def test_follow_self(self):
         follower_count_before = self.user.follower.count()
-        path = reverse('posts:profile_follow', kwargs={'username':self.user.username})
+        path = reverse('posts:profile_follow',
+                       kwargs={'username': self.user.username})
         self.authorized_client.get(path)
         test_user = User.objects.get(username=self.user.username)
         self.assertEqual(test_user.follower.count(), follower_count_before)

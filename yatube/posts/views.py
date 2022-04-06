@@ -142,7 +142,7 @@ def profile_follow(request, username):
             user=request.user,
             author=author
         )
-    except ValidationError: 
+    except ValidationError:
         pass
     return redirect('posts:profile', username=username)
 
