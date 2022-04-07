@@ -1,4 +1,3 @@
-from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -142,7 +141,7 @@ def profile_follow(request, username):
             user=request.user,
             author=author
         )
-    except ValidationError:
+    except Exception:
         pass
     return redirect('posts:profile', username=username)
 

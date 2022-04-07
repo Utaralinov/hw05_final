@@ -80,3 +80,9 @@ class Follow(models.Model):
         if self.user == self.author:
             raise ValidationError('Вы не можете подписаться на себя!')
         return super(Follow, self).save(*args, **kwargs)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["user", "author"],
+                                    name="unique_follow")
+        ]

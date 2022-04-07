@@ -2,6 +2,7 @@ import shutil
 import tempfile
 
 from django import forms
+from django.db import transaction
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
@@ -24,7 +25,7 @@ class PostPagesTests(TestCase):
         cls.user = User.objects.create_user(username='StasBasov')
         cls.old_author = User.objects.create_user(username='OldAuthor')
         cls.author = User.objects.create_user(username='author')
-        cls.follow = Follow.objects.create(
+        Follow.objects.create(
             user=cls.user,
             author=cls.old_author
         )
@@ -210,3 +211,12 @@ class PostPagesTests(TestCase):
         self.authorized_client.get(path)
         test_user = User.objects.get(username=self.user.username)
         self.assertEqual(test_user.follower.count(), follower_count_before)
+
+    def test_follow_twice(self):
+        path = reverse('posts:profile_follow',
+                       kwargs={'username': self.old_author.username})
+        with transaction.atomic():
+            response = self.authorized_client.get(path)
+        redirect_path = reverse('posts:profile',
+                                kwargs={'username': self.old_author.username})
+        self.assertRedirects(response, redirect_path)
