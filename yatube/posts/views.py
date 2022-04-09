@@ -1,4 +1,8 @@
+from http import HTTPStatus
+
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import CommentForm, PostForm
@@ -9,7 +13,7 @@ from .utils import get_paginator
 def index(request):
     template = 'posts/index.html'
     title = "Последние обновления на сайте"
-    post_list = Post.objects.all()
+    post_list = Post.objects.select_related('group').all()
     page_number = request.GET.get('page')
     context = {
         'page_obj': get_paginator(post_list, page_number),
@@ -121,9 +125,7 @@ def add_comment(request, post_id):
 def follow_index(request):
     template = 'posts/follow.html'
     title = "Последние обновления подписок"
-    following = request.user.follower.all()
-    authors = map(lambda follow: follow.author, following)
-    post_list = Post.objects.filter(author__in=authors)
+    post_list = Post.objects.filter(author__following__user=request.user)
     page_number = request.GET.get('page')
     context = {
         'page_obj': get_paginator(post_list, page_number),
@@ -137,12 +139,12 @@ def follow_index(request):
 def profile_follow(request, username):
     author = get_object_or_404(User, username=username)
     try:
-        Follow.objects.create(
+        Follow.objects.get_or_create(
             user=request.user,
             author=author
         )
-    except Exception:
-        pass
+    except ValidationError as e:
+        return HttpResponse(str(e), status=HTTPStatus.FORBIDDEN)
     return redirect('posts:profile', username=username)
 
 

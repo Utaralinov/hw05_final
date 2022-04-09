@@ -109,7 +109,6 @@ class CommentFormTests(TestCase):
         self.authorized_client.force_login(self.user)
 
     def test_add_comment(self):
-        comments_count = Comment.objects.count()
         path = reverse('posts:add_comment', kwargs={'post_id': self.post.pk})
         form_data = {
             'text': 'Текст коментария'
@@ -120,4 +119,6 @@ class CommentFormTests(TestCase):
         redirect_path = reverse('posts:post_detail',
                                 kwargs={'post_id': self.post.pk})
         self.assertRedirects(response, redirect_path)
-        self.assertEqual(Comment.objects.count(), comments_count + 1)
+        last_comment = Comment.objects.all().order_by('pk').last()
+        self.assertEqual(last_comment.text, form_data['text'])
+        self.assertEqual(last_comment.post, self.post)

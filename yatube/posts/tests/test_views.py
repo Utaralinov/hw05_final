@@ -1,12 +1,14 @@
 import shutil
 import tempfile
 
+from http import HTTPStatus
+
 from django import forms
-from django.db import transaction
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import transaction
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
@@ -208,7 +210,8 @@ class PostPagesTests(TestCase):
         follower_count_before = self.user.follower.count()
         path = reverse('posts:profile_follow',
                        kwargs={'username': self.user.username})
-        self.authorized_client.get(path)
+        response = self.authorized_client.get(path)
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
         test_user = User.objects.get(username=self.user.username)
         self.assertEqual(test_user.follower.count(), follower_count_before)
 

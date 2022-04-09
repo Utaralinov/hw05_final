@@ -1,7 +1,8 @@
-from core.models import CreatedModel
-from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.db import models
+
+from core.models import CreatedModel
 
 User = get_user_model()
 
@@ -78,7 +79,7 @@ class Follow(models.Model):
 
     def save(self, *args, **kwargs):
         if self.user == self.author:
-            raise ValidationError('Вы не можете подписаться на себя!')
+            raise ValidationError('Вы не можете подписаться на себя')
         return super(Follow, self).save(*args, **kwargs)
 
     class Meta:
